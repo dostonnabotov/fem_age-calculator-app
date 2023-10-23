@@ -9,12 +9,6 @@ import {
 import InputGroup from "./components/InputGroup";
 
 export function App() {
-  type formErrors = {
-    day: "" | "empty" | "invalid";
-    month: "" | "empty" | "invalid";
-    year: "" | "empty" | "invalid";
-  };
-
   const [formData, setFormData] = useState({
     day: "",
     month: "",
@@ -33,17 +27,29 @@ export function App() {
     days: -1,
   });
 
-  const validateDate = (name: string, value: string) => {
-    switch (name) {
-      case "day":
-        return validateDay(parseInt(value));
-      case "month":
-        return validateMonth(parseInt(value));
-      case "year":
-        return validateYear(parseInt(value));
-      default:
-        return "";
-    }
+  // const validateDate = (name: string, value: string) => {
+  //   switch (name) {
+  //     case "day":
+  //       return validateDay(parseInt(value));
+  //     case "month":
+  //       return validateMonth(parseInt(value));
+  //     case "year":
+  //       return validateYear(parseInt(value));
+  //     default:
+  //       return "";
+  //   }
+  // };
+
+  const validateDate = (day: string, month: string, year: string) => {
+    let dayError = validateDay(parseInt(day));
+    let monthError = validateMonth(parseInt(month));
+    let yearError = validateYear(parseInt(year));
+
+    return {
+      day: dayError,
+      month: monthError,
+      year: yearError,
+    };
   };
 
   const handleChange = (event: Event) => {
@@ -59,9 +65,15 @@ export function App() {
       [name]: value,
     }));
 
-    setFormErrors((prevFormErrors) => ({
-      ...prevFormErrors,
-      [name]: validateDate(name, value),
+    const errors = validateDate(
+      name == "day" ? value : formData.day,
+      name === "month" ? value : formData.month,
+      name === "year" ? value : formData.year
+    );
+
+    setFormErrors((prevFormData) => ({
+      ...prevFormData,
+      ...errors,
     }));
   };
 
@@ -79,6 +91,10 @@ export function App() {
 
       return;
     }
+
+    const errors = validateDate(day, month, year);
+
+    setFormErrors(errors);
 
     const [ageDay, ageMonth, ageYear] = dateDifference(
       parseInt(day),
